@@ -9,8 +9,8 @@
     ],
     "releasenote": "0.0.0",
     "dependencies": {
-        "thenshim": ""
     },
+    "classPath": "src",
     "name": "promises",
     "description": "",
     "url": ""
