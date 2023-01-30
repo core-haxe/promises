@@ -62,6 +62,48 @@ class PromiseUtils {
         });
     }
 
+    /*
+    Use .bind to return functions that create a promise, eg:
+        PromiseUtils.runAll([
+            {id: "id1", promise: someFunctionThatReturnsAPromiseAndTakesAnInt.bind(111)},
+            {id: "id2", promise: someFunctionThatReturnsAPromiseAndTakesAnInt.bind(222)},
+            {id: "id3", promise: someFunctionThatReturnsAPromiseAndTakesAnInt.bind(333)},
+            {id: "id4", promise: someFunctionThatReturnsAPromiseAndTakesAnInt.bind(444)},
+            {id: "id5", promise: someFunctionThatReturnsAPromiseAndTakesAnInt.bind(555)}
+        ]).then(results -> {
+            trace("all complete", results);
+        }, error -> {
+            trace("error", error);
+        });
+    */
+    public static function runAllMapped(promises:Array<{id:String, promise:() -> Promise<Any>}>, failFast = false):Promise<Map<String, Any>> {
+        return new Promise((resolve, reject) -> {
+            var results:Map<String, Any> = [];
+            var count = promises.length;
+
+            for (item in promises) {
+                var fn = item.promise;
+                var id = item.id;
+                var p = fn();
+                p.then(result -> {
+                    count--;
+                    results.set(id, result);
+                    if (count == 0) {
+                        resolve(results);
+                    }
+                }, e -> {
+                    count--;
+                    results.set(id, e);
+                    if (failFast == true) {
+                        reject(e);
+                    } else if (count == 0) {
+                        resolve(results);
+                    }
+                });
+            }
+        });
+    }
+
     private static function _runSequentially(list:Array<() -> Promise<Any>>, failFast:Bool, results:Array<Any>, resolve:Array<Any>->Void, reject:Any->Void) {
         if (list.length == 0) {
             resolve(results);
