@@ -124,4 +124,8 @@ class PromiseUtils {
             }
         });
     }
+
+    public static inline function promisify<T>(param:T):Promise<T> {
+        return new Promise((resolve, _) -> resolve(param));
+    }
 }
