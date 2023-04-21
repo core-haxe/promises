@@ -38,6 +38,10 @@ class PromiseUtils {
     */
     public static function runAll(promises:Array<() -> Promise<Any>>, failFast = false):Promise<Array<Any>> {
         return new Promise((resolve, reject) -> {
+            if (promises.length == 0) {
+                resolve([]);
+                return;
+            }
             var results = [];
             var count = promises.length;
 
