@@ -68,7 +68,7 @@ class PromiseUtils {
 
     /*
     Use .bind to return functions that create a promise, eg:
-        PromiseUtils.runAll([
+        PromiseUtils.runAllMapped([
             {id: "id1", promise: someFunctionThatReturnsAPromiseAndTakesAnInt.bind(111)},
             {id: "id2", promise: someFunctionThatReturnsAPromiseAndTakesAnInt.bind(222)},
             {id: "id3", promise: someFunctionThatReturnsAPromiseAndTakesAnInt.bind(333)},
@@ -126,6 +126,14 @@ class PromiseUtils {
                 results.push(e);
                 _runSequentially(list, failFast, results, resolve, reject);
             }
+        });
+    }
+
+    private function wait(amountMS:Int) {
+        return new Promise((resolve, reject) -> {
+            haxe.Timer.delay(() -> {
+                resolve(true);
+            }, amountMS);
         });
     }
 
