@@ -129,7 +129,7 @@ class PromiseUtils {
         });
     }
 
-    private function wait(amountMS:Int) {
+    public static function wait(amountMS:Int) {
         return new Promise((resolve, reject) -> {
             haxe.Timer.delay(() -> {
                 resolve(true);
