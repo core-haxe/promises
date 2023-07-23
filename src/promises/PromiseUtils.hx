@@ -83,6 +83,10 @@ class PromiseUtils {
     public static function runAllMapped(promises:Array<{id:String, promise:() -> Promise<Any>}>, failFast = false):Promise<Map<String, Any>> {
         return new Promise((resolve, reject) -> {
             var results:Map<String, Any> = [];
+            if (promises.length == 0) {
+                resolve(results);
+                return;
+            }
             var count = promises.length;
 
             for (item in promises) {
