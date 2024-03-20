@@ -15,9 +15,9 @@ class PromiseUtils {
             trace("error", error);
         });
     */
-    public static function runSequentially(promises:Array<() -> Promise<Any>>, failFast = true):Promise<Array<Any>> {
+    public static function runSequentially<T>(promises:Array<() -> Promise<T>>, failFast = true):Promise<Array<T>> {
         return new Promise((resolve, reject) -> {
-            var results = [];
+            var results:Array<T> = [];
             _runSequentially(promises.copy(), failFast, results, resolve, reject);
         });
     }
@@ -36,7 +36,7 @@ class PromiseUtils {
             trace("error", error);
         });
     */
-    public static function runAll(promises:Array<() -> Promise<Any>>, failFast = false):Promise<Array<Any>> {
+    public static function runAll<T>(promises:Array<() -> Promise<T>>, failFast = false, excludeFailures:Bool = false):Promise<Array<T>> {
         return new Promise((resolve, reject) -> {
             if (promises.length == 0) {
                 resolve([]);
@@ -55,7 +55,9 @@ class PromiseUtils {
                     }
                 }, e -> {
                     count--;
-                    results.push(e);
+                    if (!excludeFailures) {
+                        results.push(e);
+                    }
                     if (failFast == true) {
                         reject(e);
                     } else if (count == 0) {
@@ -80,9 +82,9 @@ class PromiseUtils {
             trace("error", error);
         });
     */
-    public static function runAllMapped(promises:Array<{id:String, promise:() -> Promise<Any>}>, failFast = false):Promise<Map<String, Any>> {
+    public static function runAllMapped<T>(promises:Array<{id:String, promise:() -> Promise<T>}>, failFast = false, excludeFailures:Bool = false):Promise<Map<String, T>> {
         return new Promise((resolve, reject) -> {
-            var results:Map<String, Any> = [];
+            var results:Map<String, T> = [];
             if (promises.length == 0) {
                 resolve(results);
                 return;
@@ -101,7 +103,9 @@ class PromiseUtils {
                     }
                 }, e -> {
                     count--;
-                    results.set(id, e);
+                    if (!excludeFailures) {
+                        results.set(id, e);
+                    }
                     if (failFast == true) {
                         reject(e);
                     } else if (count == 0) {
@@ -112,7 +116,7 @@ class PromiseUtils {
         });
     }
 
-    private static function _runSequentially(list:Array<() -> Promise<Any>>, failFast:Bool, results:Array<Any>, resolve:Array<Any>->Void, reject:Any->Void) {
+    private static function _runSequentially<T>(list:Array<() -> Promise<T>>, failFast:Bool, results:Array<T>, resolve:Array<T>->Void, reject:Any->Void) {
         if (list.length == 0) {
             resolve(results);
             return;
