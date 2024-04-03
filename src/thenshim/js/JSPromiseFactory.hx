@@ -17,7 +17,7 @@ class JSPromiseFactory implements PromiseFactory {
         return js.lib.Promise.resolve(object);
     }
 
-    public function asRejected<T>(reason:Any) {
+    public function asRejected<T>(reason:Any):thenshim.Promise.UnderlyingPromise<T> {
         return js.lib.Promise.reject(reason);
     }
 }
