@@ -36,6 +36,9 @@ from UnderlyingPromise<T> to UnderlyingPromise<T> {
      * @param executor Callback function with resolve and reject functions.
      */
     public function new(executor:PromiseExecutor<T>) {
+        if (factory == null) {
+            factory = new _Factory();
+        }
         this = factory.make(executor);
     }
 
