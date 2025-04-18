@@ -15,10 +15,13 @@ class PromiseUtils {
             trace("error", error);
         });
     */
-    public static function runSequentially<T>(promises:Array<() -> Promise<T>>, failFast = true):Promise<Array<T>> {
+    public static function runSequentially<T>(promises:Array<() -> Promise<T>>, failFast = true, progressCallback:Int->Int->Void = null):Promise<Array<T>> {
         return new Promise((resolve, reject) -> {
             var results:Array<T> = [];
-            _runSequentially(promises.copy(), failFast, results, resolve, reject);
+            if (progressCallback != null) {
+                progressCallback(0, promises.length);
+            }
+            _runSequentially(promises.copy(), failFast, results, resolve, reject, progressCallback);
         });
     }
 
@@ -116,7 +119,7 @@ class PromiseUtils {
         });
     }
 
-    private static function _runSequentially<T>(list:Array<() -> Promise<T>>, failFast:Bool, results:Array<T>, resolve:Array<T>->Void, reject:Any->Void) {
+    private static function _runSequentially<T>(list:Array<() -> Promise<T>>, failFast:Bool, results:Array<T>, resolve:Array<T>->Void, reject:Any->Void, progressCallback:Int->Int->Void) {
         if (list.length == 0) {
             resolve(results);
             return;
@@ -126,13 +129,27 @@ class PromiseUtils {
         var p = fn();
         p.then(result -> {
             results.push(result);
-            _runSequentially(list, failFast, results, resolve, reject);
+
+            if (progressCallback != null) {
+                var max = (results.length + list.length);
+                var current = results.length;
+                progressCallback(current, max);
+            }
+    
+            _runSequentially(list, failFast, results, resolve, reject, progressCallback);
         }, e -> {
             if (failFast == true) {
                 reject(e);
             } else {
                 results.push(e);
-                _runSequentially(list, failFast, results, resolve, reject);
+
+                if (progressCallback != null) {
+                    var max = (results.length + list.length);
+                    var current = results.length;
+                    progressCallback(current, max);
+                }
+    
+                _runSequentially(list, failFast, results, resolve, reject, progressCallback);
             }
         });
     }
